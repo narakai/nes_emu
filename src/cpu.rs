@@ -117,7 +117,7 @@ mod test {
         assert_eq!(cpu.register_a, 0x87);
         assert_eq!(cpu.status & 0b0000_0010, 0b00);
         //0x87 - zero flag 后应该为 1000 0101
-        //negative flag 后应该为 1000 0101
+        //negative flag 后应该为 1000 0000
         assert_eq!(cpu.status & 0b1000_0000, 0b1000_0000);
     }
 }
