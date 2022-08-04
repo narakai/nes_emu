@@ -56,37 +56,66 @@ impl CPU {
         }
     }
 
+    fn update_zero_flag(&mut self, result: u8) {
+        if result == 0 {
+            //设置标志位为1
+            self.status = self.status | 0b0000_0010
+        } else {
+            //保留除标志位的其他位
+            self.status = self.status & 0b1111_1101
+        }
+    }
+
+    fn update_negative_flag(&mut self, result: u8) {
+        if result & 0b1000_0000 != 0 {
+            self.status = self.status | 0b1000_0000
+        } else {
+            self.status = self.status & 0b0111_1111
+        }
+    }
+
+    fn tax(&mut self) {
+        //Transfer A to X
+        self.register_x = self.register_a;
+
+        //Affects Flags: N Z
+        //根据register_a改变status标志
+        //update Zero Flag - if that value is zero, this flag will be set
+        self.update_zero_flag(self.register_x);
+
+        //update Negative Flag - 根据register_a标志位设置status标志
+        self.update_negative_flag(self.register_x);
+    }
+
+    fn lda(&mut self, value: u8) {
+        self.register_a = value;
+
+        // http://www.6502.org/tutorials/6502opcodes.html#LDA
+        //LDA Affects Flags: N Z
+
+        //根据register_a改变status标志
+        //update Zero Flag - if that value is zero, this flag will be set
+        self.update_zero_flag(self.register_a);
+
+        //update Negative Flag - 根据register_a标志位设置status标志
+        self.update_negative_flag(self.register_a);
+    }
+
     pub fn interpret(&mut self, program: Vec<u8>) {
         loop {
             let opscode = program[self.program_counter as usize];
             self.program_counter += 1;
             // http://www.6502.org/tutorials/6502opcodes.html
             match opscode {
+                0xAA => {
+                    self.tax();
+                }
                 0xA9 => {
+                    //Mode: Immediate
                     //读取opscode的下一条参数
                     let param = program[self.program_counter as usize];
                     self.program_counter += 1;
-                    self.register_a = param;
-
-                    // http://www.6502.org/tutorials/6502opcodes.html#LDA
-                    //LDA Affects Flags: N Z
-
-                    //根据register_a改变status标志
-                    //update Zero Flag - if that value is zero, this flag will be set
-                    if self.register_a == 0 {
-                        //设置标志位为1
-                        self.status = self.status | 0b0000_0010
-                    } else {
-                        //保留除标志位的其他位
-                        self.status = self.status & 0b1111_1101
-                    }
-
-                    //update Negative Flag - 根据register_a标志位设置status标志
-                    if self.register_a & 0b1000_0000 != 0 {
-                        self.status = self.status | 0b1000_0000
-                    } else {
-                        self.status = self.status & 0b0111_1111
-                    }
+                    self.lda(param);
                 }
                 0x00 => {
                     return;
@@ -119,5 +148,15 @@ mod test {
         //0x87 - zero flag 后应该为 1000 0101
         //negative flag 后应该为 1000 0101
         assert_eq!(cpu.status & 0b1000_0000, 0b1000_0000);
+    }
+
+
+    #[test]
+    fn test_0xaa_tax_move_a_to_x() {
+        let mut cpu = CPU::new();
+        cpu.register_a = 10;
+        cpu.interpret(vec![0xaa, 0x00]);
+
+        assert_eq!(cpu.register_x, 10)
     }
 }
