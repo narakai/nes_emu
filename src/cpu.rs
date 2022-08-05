@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use crate::opcodes;
+
 // https://www.nesdev.org/wiki/CPU_registers
 pub struct CPU {
     //A is byte-wide and along with the arithmetic logic unit (ALU),
@@ -212,6 +215,7 @@ impl CPU {
     }
 
     fn lda(&mut self, mode: &AddressingMode) {
+        //LoaD Accumulator
         let addr = self.get_operand_address(mode);
         let value = self.mem_read(addr);
         self.register_a = value;
@@ -227,6 +231,13 @@ impl CPU {
         self.update_negative_flag(self.register_a);
     }
 
+    fn sta(&mut self, mode: &AddressingMode) {
+        // STore Accumulator
+        // Affects Flags: none
+        let addr = self.get_operand_address(mode);
+        self.mem_write(addr, self.register_a);
+    }
+
     fn inx(&mut self) {
         //INcrement X
         self.register_x = self.register_x.wrapping_add(1);
@@ -235,53 +246,35 @@ impl CPU {
     }
 
     pub fn run(&mut self) {
+        let ref opcodes: HashMap<u8, &'static opcodes::OpCode> = *opcodes::OPCODES_MAP;
         loop {
             let code = self.mem_read(self.program_counter);
             self.program_counter += 1;
+
+            let program_counter_state = self.program_counter;
+            let opcode = opcodes.get(&code).expect(&format!("OpCode {:x} is not recognized", code));
+
             // http://www.6502.org/tutorials/6502opcodes.html
             match code {
-                0xE8 => {
-                    self.inx();
+                /* LDA */
+                0xa9 | 0xa5 | 0xb5 | 0xad | 0xbd | 0xb9 | 0xa1 | 0xb1 => {
+                    self.lda(&opcode.mode);
                 }
-                0xAA => {
-                    self.tax();
+
+                /* STA */
+                0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => {
+                    self.sta(&opcode.mode);
                 }
-                0xA9 => {
-                    self.lda(&AddressingMode::Immediate);
-                    self.program_counter += 1;
-                }
-                0xA5 => {
-                    self.lda(&AddressingMode::ZeroPage);
-                    self.program_counter += 1;
-                }
-                0xB5 => {
-                    self.lda(&AddressingMode::ZeroPage_X);
-                    self.program_counter += 1;
-                }
-                0xAD => {
-                    self.lda(&AddressingMode::Absolute);
-                    self.program_counter += 1;
-                }
-                0xBD => {
-                    self.lda(&AddressingMode::Absolute_X);
-                    self.program_counter += 1;
-                }
-                0xB9 => {
-                    self.lda(&AddressingMode::Absolute_Y);
-                    self.program_counter += 1;
-                }
-                0xA1 => {
-                    self.lda(&AddressingMode::Indirect_X);
-                    self.program_counter += 1;
-                }
-                0xB1 => {
-                    self.lda(&AddressingMode::Indirect_Y);
-                    self.program_counter += 1;
-                }
-                0x00 => {
-                    return;
-                }
-                _ => todo!()
+
+                0xaa => self.tax(),
+                0xe8 => self.inx(),
+                0x00 => return,
+                _ => todo!(),
+            }
+
+            if program_counter_state == self.program_counter {
+                //OpCode len
+                self.program_counter += (opcode.len - 1) as u16;
             }
         }
     }
