@@ -72,7 +72,7 @@ pub struct CPU {
     // $4000-$4017	$0018	NES APU and I/O registers
     // $4018-$401F	$0008	APU and I/O functionality that is normally disabled. See CPU Test Mode.
     // $4020-$FFFF	$BFE0	Cartridge space: PRG ROM, PRG RAM, and mapper registers (See Note)
-    // 64KB
+    // 64KB for all, 48KB for Cartridge
     pub bus: Bus,
 }
 

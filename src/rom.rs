@@ -50,6 +50,7 @@ impl Rom {
         let chr_rom_start = prg_rom_start + prg_rom_size;
 
         Ok(Rom {
+            //写入rom数据
             prg_rom: raw[prg_rom_start..(prg_rom_start + prg_rom_size)].to_vec(),
             chr_rom: raw[chr_rom_start..(chr_rom_start + chr_rom_size)].to_vec(),
             mapper: mapper,
