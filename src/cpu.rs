@@ -1191,7 +1191,7 @@ impl CPU {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::rom::test;
+    use crate::cartridge::test;
 
     #[test]
     fn test_0xa9_lda_immidiate_load_data() {

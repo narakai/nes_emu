@@ -1,8 +1,9 @@
 pub mod bus;
-pub mod rom;
+pub mod cartridge;
 pub mod cpu;
 pub mod opcodes;
 pub mod trace;
+pub mod ppu;
 
 use cpu::Mem;
 use cpu::CPU;
@@ -13,7 +14,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::pixels::PixelFormatEnum;
 use crate::bus::Bus;
-use crate::rom::Rom;
+use crate::cartridge::Cartridge;
 use crate::trace::trace;
 
 fn color(byte: u8) -> Color {
@@ -91,7 +92,7 @@ fn main() {
 
     //load the game
     let bytes: Vec<u8> = std::fs::read("nestest.nes").unwrap();
-    let rom = Rom::new(&bytes).unwrap();
+    let rom = Cartridge::new(&bytes).unwrap();
 
     let bus = Bus::new(rom);
     let mut cpu = CPU::new(bus);

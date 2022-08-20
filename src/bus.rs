@@ -1,5 +1,5 @@
 use crate::cpu::Mem;
-use crate::rom::Rom;
+use crate::cartridge::Cartridge;
 
 //  _______________ $10000  _______________
 // | PRG-ROM       |       |               |
@@ -35,11 +35,11 @@ const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 
 pub struct Bus {
     cpu_vram: [u8; 2048],
-    rom: Rom,
+    rom: Cartridge,
 }
 
 impl Bus {
-    pub fn new(rom: Rom) -> Self {
+    pub fn new(rom: Cartridge) -> Self {
         Bus {
             cpu_vram: [0; 2048],
             rom: rom,

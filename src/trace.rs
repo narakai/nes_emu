@@ -134,7 +134,7 @@ pub fn trace(cpu: &CPU) -> String {
 mod test {
     use super::*;
     use crate::bus::Bus;
-    use crate::rom::test::test_rom;
+    use crate::cartridge::test::test_rom;
 
     #[test]
     fn test_format_trace() {

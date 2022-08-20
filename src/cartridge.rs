@@ -9,15 +9,15 @@ pub enum Mirroring {
     FOUR_SCREEN,
 }
 
-pub struct Rom {
+pub struct Cartridge {
     pub prg_rom: Vec<u8>,
     pub chr_rom: Vec<u8>,
     pub mapper: u8,
     pub screen_mirroring: Mirroring,
 }
 
-impl Rom {
-    pub fn new(raw: &Vec<u8>) -> Result<Rom, String> {
+impl Cartridge {
+    pub fn new(raw: &Vec<u8>) -> Result<Cartridge, String> {
         // https://bugzmanov.github.io/nes_ebook/chapter_5.html
         if &raw[0..4] != NES_TAG {
             return Err("File is not in iNES file format".to_string());
@@ -49,7 +49,7 @@ impl Rom {
         let prg_rom_start = 16 + if skip_trainer { 512 } else { 0 };
         let chr_rom_start = prg_rom_start + prg_rom_size;
 
-        Ok(Rom {
+        Ok(Cartridge {
             //写入rom数据
             prg_rom: raw[prg_rom_start..(prg_rom_start + prg_rom_size)].to_vec(),
             chr_rom: raw[chr_rom_start..(chr_rom_start + chr_rom_size)].to_vec(),
@@ -87,7 +87,7 @@ pub mod test {
         result
     }
 
-    pub fn test_rom() -> Rom {
+    pub fn test_rom() -> Cartridge {
         let test_rom = create_rom(TestRom {
             header: vec![
                 0x4E, 0x45, 0x53, 0x1A, 0x02, 0x01, 0x31, 00, 00, 00, 00, 00, 00, 00, 00, 00,
@@ -97,7 +97,7 @@ pub mod test {
             chr_rom: vec![2; 1 * CHR_ROM_PAGE_SIZE],
         });
 
-        Rom::new(&test_rom).unwrap()
+        Cartridge::new(&test_rom).unwrap()
     }
 
     #[test]
@@ -111,7 +111,7 @@ pub mod test {
             chr_rom: vec![2; 1 * CHR_ROM_PAGE_SIZE],
         });
 
-        let rom: Rom = Rom::new(&test_rom).unwrap();
+        let rom: Cartridge = Cartridge::new(&test_rom).unwrap();
 
         assert_eq!(rom.chr_rom, vec!(2; 1 * CHR_ROM_PAGE_SIZE));
         assert_eq!(rom.prg_rom, vec!(1; 2 * PRG_ROM_PAGE_SIZE));
@@ -145,7 +145,7 @@ pub mod test {
             chr_rom: vec![2; 1 * CHR_ROM_PAGE_SIZE],
         });
 
-        let rom: Rom = Rom::new(&test_rom).unwrap();
+        let rom: Cartridge = Cartridge::new(&test_rom).unwrap();
 
         assert_eq!(rom.chr_rom, vec!(2; 1 * CHR_ROM_PAGE_SIZE));
         assert_eq!(rom.prg_rom, vec!(1; 2 * PRG_ROM_PAGE_SIZE));
@@ -163,7 +163,7 @@ pub mod test {
             pgp_rom: vec![1; 1 * PRG_ROM_PAGE_SIZE],
             chr_rom: vec![2; 1 * CHR_ROM_PAGE_SIZE],
         });
-        let rom = Rom::new(&test_rom);
+        let rom = Cartridge::new(&test_rom);
         match rom {
             Ok(_) => assert!(false, "should not load rom"),
             Err(str) => assert_eq!(str, "NES2.0 format is not supported"),
