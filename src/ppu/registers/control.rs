@@ -34,6 +34,8 @@ impl ControlRegister {
         ControlRegister::from_bits_truncate(0b00000000)
     }
 
+    // VRAM address increment per CPU read/write of PPUDATA
+    // (0: add 1, going across; 1: add 32, going down)
     pub fn vram_addr_increment(&self) -> u8 {
         if !self.contains(ControlRegister::VRAM_ADD_INCREMENT) {
             1
