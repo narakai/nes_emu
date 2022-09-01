@@ -54,11 +54,11 @@ impl Bus {
     fn read_prg_rom(&self, mut addr: u16) -> u8 {
         addr -= 0x8000;
         // PRG Rom Size might be 16 KiB(0x4000) or 32 KiB
-        if self.rom.prg_rom.len() == 0x4000 && addr >= 0x4000 {
+        if self.prg_rom.len() == 0x4000 && addr >= 0x4000 {
             //mirror if needed
             addr = addr % 0x4000;
         }
-        self.rom.prg_rom[addr as usize]
+        self.prg_rom[addr as usize]
     }
 }
 

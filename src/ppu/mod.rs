@@ -1,4 +1,3 @@
-use core::panicking::panic;
 use crate::cartridge::Mirroring;
 use registers::addr::AddrRegister;
 use crate::ppu::registers::control::ControlRegister;
@@ -31,11 +30,11 @@ impl NesPPU {
         }
     }
 
-    pub(crate) fn write_to_ppu_addr(&mut self, value: u8) {
+    pub fn write_to_ppu_addr(&mut self, value: u8) {
         self.addr.update(value);
     }
 
-    pub(crate) fn write_to_ctrl(&mut self, value: u8) {
+    pub fn write_to_ctrl(&mut self, value: u8) {
         self.ctrl.update(value);
     }
 
@@ -88,7 +87,7 @@ impl NesPPU {
         }
     }
 
-    pub(crate) fn write_to_data(&mut self, value: u8) {
+    pub fn write_to_data(&mut self, value: u8) {
         let addr = self.addr.get();
     }
 }
