@@ -1,3 +1,5 @@
+extern crate core;
+
 pub mod bus;
 pub mod cartridge;
 pub mod cpu;

@@ -6,7 +6,7 @@ pub struct AddrRegister {
 impl AddrRegister {
     pub fn new() -> Self {
         AddrRegister {
-            value: (0, 0),
+            value: (0, 0), // high byte first, lo byte second
             hi_ptr: true,
         }
     }
